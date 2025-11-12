@@ -1,18 +1,3 @@
-# %% [markdown]
-# Higgs (Kaggle) classification notebook
-
-# This notebook assumes you have the Kaggle Higgs CSV (800k rows) available locally as 'higgs_kaggle.csv' or 'higgs_kaggle.csv.gz'.
-# It will:
-# 1. Detect the label column automatically
-# 2. Load data efficiently using Dask if available, else pandas
-# 3. Preprocess (missing values, scaling, optional PCA)
-# 4. Train and evaluate three models: XGBoost (Gradient Boosted Trees), Logistic Regression, and SVM (via SGD for scale)
-# 5. Produce ROC AUC, PR AUC, confusion matrix, feature importance for tree model
-
-# %% [markdown]
-# Setup and package installation (run once)
-
-# %%
 import sys
 
 required = [
