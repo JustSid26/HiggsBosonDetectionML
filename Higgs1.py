@@ -1,3 +1,16 @@
+# %% [markdown]
+# Higgs Kaggle (Local Files Version)
+#
+# You provided train.csv (labelled), test.csv (unlabelled), and sample_submission.csv.
+# This version automatically loads those local files instead of downloading anything.
+#
+# It performs:
+# - Data loading (train/test)
+# - Preprocessing (impute + scale)
+# - Model training on train.csv (Gradient Boosted Trees, Logistic Regression, SVM)
+# - Prediction on test.csv and generation of a submission file
+
+# %%
 import pandas as pd
 import numpy as np
 import os
@@ -130,18 +143,29 @@ res_svm = evaluate(model_svm, X_val_s, y_val, 'SVM_SGD')
 # %%
 if os.path.exists(sub_path):
     submission = pd.read_csv(sub_path)
-    sub_cols = submission.columns
-    pred_xgb = model_xgb.predict_proba(X_test_s)[:,1] if hasattr(model_xgb, 'predict_proba') else model_xgb.predict(X_test_s)
-    submission[sub_cols[-1]] = pred_xgb
-    submission.to_csv('submission.csv', index=False)
-    print('submission.csv created')
+
+    # get prediction probability
+    if hasattr(model_xgb, "predict_proba"):
+        pred = model_xgb.predict_proba(X_test_s)[:, 1]
+    else:
+        pred = model_xgb.predict(X_test_s)
+
+    # ensure same length
+    assert len(pred) == len(submission), "Row mismatch between test.csv and sample_submission.csv"
+
+    # replace prediction column
+    pred_col = submission.columns[-1]
+    submission[pred_col] = pred
+
+    submission.to_csv("submission.csv", index=False)
+    print("submission.csv created and matched with sample_submission.csv")
 else:
-    print('No sample_submission.csv found; skipped submission file generation')
+    print("sample_submission.csv not found.")
 
 # %% [markdown]
 # Save models and preprocessing
 
-# %%
+# 
 os.makedirs('models', exist_ok=True)
 joblib.dump({'imp':imp,'scaler':scaler},'models/preproc.joblib')
 joblib.dump(model_xgb,'models/model_gbt.joblib')
