@@ -1,8 +1,6 @@
 # %% [markdown]
 # Higgs Kaggle (Local Files Version)
 #
-# You provided train.csv (labelled), test.csv (unlabelled), and sample_submission.csv.
-# This version automatically loads those local files instead of downloading anything.
 #
 # It performs:
 # - Data loading (train/test)
