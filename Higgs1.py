@@ -1,6 +1,8 @@
 # %% [markdown]
 # Higgs Kaggle (Local Files Version)
 #
+# You provided train.csv (labelled), test.csv (unlabelled), and sample_submission.csv.
+# This version automatically loads those local files instead of downloading anything.
 #
 # It performs:
 # - Data loading (train/test)
@@ -134,6 +136,53 @@ def evaluate(model, Xv, yv, name):
 res_xgb = evaluate(model_xgb, X_val_s, y_val, 'GradientBoosted')
 res_lr = evaluate(model_lr, X_val_s, y_val, 'LogisticRegression')
 res_svm = evaluate(model_svm, X_val_s, y_val, 'SVM_SGD')
+
+##ROC COMPARISION
+from sklearn.metrics import roc_curve, precision_recall_curve
+import matplotlib.pyplot as plt
+
+def get_probs(model, X):
+    if hasattr(model, 'predict_proba'):
+        return model.predict_proba(X)[:,1]
+    try:
+        p = model.decision_function(X)
+        return (p - p.min()) / (p.max() - p.min() + 1e-12)
+    except:
+        return model.predict(X)
+
+p_xgb = get_probs(model_xgb, X_val_s)
+p_lr = get_probs(model_lr, X_val_s)
+p_svm = get_probs(model_svm, X_val_s)
+
+fpr_xgb, tpr_xgb, _ = roc_curve(y_val, p_xgb)
+fpr_lr, tpr_lr, _ = roc_curve(y_val, p_lr)
+fpr_svm, tpr_svm, _ = roc_curve(y_val, p_svm)
+
+plt.figure(figsize=(8,6))
+plt.plot(fpr_xgb, tpr_xgb, label='GradientBoosted')
+plt.plot(fpr_lr, tpr_lr, label='LogisticRegression')
+plt.plot(fpr_svm, tpr_svm, label='SVM_SGD')
+plt.plot([0,1],[0,1], linestyle='--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.legend()
+plt.title('ROC Curve Comparison')
+plt.show()
+
+##precision recall comparision
+prec_xgb, rec_xgb, _ = precision_recall_curve(y_val, p_xgb)
+prec_lr, rec_lr, _ = precision_recall_curve(y_val, p_lr)
+prec_svm, rec_svm, _ = precision_recall_curve(y_val, p_svm)
+
+plt.figure(figsize=(8,6))
+plt.plot(rec_xgb, prec_xgb, label='GradientBoosted')
+plt.plot(rec_lr, prec_lr, label='LogisticRegression')
+plt.plot(rec_svm, prec_svm, label='SVM_SGD')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.legend()
+plt.title('Precision Recall Curve Comparison')
+plt.show()
 
 # %% [markdown]
 # Predictions on test.csv and submission
