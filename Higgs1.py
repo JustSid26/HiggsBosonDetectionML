@@ -16,8 +16,6 @@ except Exception:
     has_xgb = False
 
 # %% [markdown]
-# Load your local files
-
 # %%
 train_path = 'train.csv'
 test_path = 'test.csv'
@@ -59,8 +57,10 @@ print('Class balance:\n', y.value_counts(normalize=True))
 X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
 
 # %% [markdown]
-# Preprocessing: impute + scale
-
+'''
+For preprocessing we used Simple Imputer with median parameter for any NA or NAN values
+Then we normalised the data throught standardisation
+'''
 # %%
 imp = SimpleImputer(strategy='median')
 scaler = StandardScaler()
@@ -74,8 +74,10 @@ X_val_s = scaler.transform(X_val_imp)
 X_test_s = scaler.transform(X_test_imp)
 
 # %% [markdown]
-# Model 1: Gradient Boosted Trees (XGBoost if available else HistGradientBoosting)
-
+'''
+this is mode1 1 which uses gradient boosted trees (XGBoost if locally available
+ or else HGB - HistGradientBoosting)
+'''
 # %%
 if has_xgb:
     model_xgb = xgb.XGBClassifier(objective='binary:logistic', n_jobs=8, tree_method='hist', random_state=42)
@@ -86,7 +88,7 @@ else:
     model_xgb.fit(X_train_s, y_train)
 
 # %% [markdown]
-# Model 2: Logistic Regression
+#simple logistic regress
 
 # %%
 model_lr = LogisticRegression(max_iter=1000, n_jobs=8)
